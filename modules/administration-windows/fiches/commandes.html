@@ -1,0 +1,30 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>PowerShell &amp; CMD · ENI ASR</title><link rel="stylesheet" href="../../../assets/style.css"><script defer src="../../../assets/app.js"></script></head><body><header><a class="brand" href="../../../index.html"><span class="mark">ENI / ASR</span><span>Base de connaissances</span></a><button id="theme" type="button">Mode sombre</button></header><div class="layout"><nav aria-label="Navigation"><div class="links"><a href="../../../index.html">Accueil ENI</a><a href="../index.html">Administration Windows</a></div><h2>Cours</h2><div class="links"><a href="../cours/01-contextes.html">01 · Contextes de travail</a><a href="../cours/02-windows-server.html">02 · Gestion de Windows Server</a><a href="../cours/03-active-directory.html">03 · Domaine Active Directory</a><a href="../cours/04-ressources.html">04 · Accès aux ressources</a><a href="../cours/05-gpo.html">05 · Stratégies de groupe (GPO)</a></div><h2>TP</h2><div class="links"><a href="../tp/tp01-infrastructure/index.html">TP 01 · Création de l’infrastructure</a><a href="../tp/tp02-domaine/index.html">TP 02 · Création du domaine AD</a><a href="../tp/tp03-gestion-ad/index.html">TP 03 · Gestion d’un domaine AD</a><a href="../tp/tp04-ressources/index.html">TP 04 · Gestion des ressources</a><a href="../tp/tp05-gpo/index.html">TP 05 · Stratégies de groupe</a></div><h2>Fiches</h2><div class="links"><a href="commandes.html" aria-current="page">PowerShell &amp; CMD</a><a href="raccourcis.html">Raccourcis Windows</a><a href="infra.html">Infrastructure du lab</a></div><h2>Scripts</h2><div class="links"><a href="../scripts/index.html">Bibliothèque de scripts</a></div><h2>Modèles</h2><div class="links"><a href="../modeles/index.html">Compte rendu &amp; correction</a></div></nav><main><section class="hero"><span class="eyebrow">Fiches Fiche</span><h1>PowerShell &amp; CMD</h1><p>Commandes classées par usage</p><div class="source">Base : Complément pratique : cours + ateliers + commandes utilisées dans le lab</div></section><div class="actions"><a class="action" href="commandes.md">Source Markdown</a></div><article class="article"><h2>Active Directory / lecture</h2><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code>Import-Module ActiveDirectory
+Get-ADUser -Filter {Enabled -eq $false}
+Get-ADUser -Identity dgrenier -Properties *
+Get-ADGroup -Filter {GroupScope -eq &quot;Global&quot;}
+Get-ADGroupMember -Identity &quot;G-Informatique&quot;
+Get-ADGroupMember -Identity &quot;G-Informatique&quot; -Recursive
+Get-ADDomain
+Get-ADForest
+Get-ADReplicationSubnet -Filter *
+Get-ADReplicationSite -Filter *</code></pre></div><p>Sans -Recursive : membres directs (dont groupes imbriqués). Avec -Recursive : expansion des membres.</p><h2>Réseau, DNS, domaine, GPO</h2><div class="code"><div class="codebar"><span>cmd</span><button class="copy" type="button">Copier</button></div><pre><code>ipconfig /all
+ping 192.168.21.1
+nslookup domED.ad
+nltest /dsgetsite
+nltest /dsgetdc:domED.ad /force
+netdom query fsmo
+repadmin /replsummary
+repadmin /showrepl
+dcdiag /test:dns
+whoami /groups
+gpupdate /force
+gpresult /r
+gpresult /h resultat-gpo.html</code></pre></div><h2>Stockage, partages et ACL</h2><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code>Get-Disk
+Get-PhysicalDisk
+Get-StoragePool -IsPrimordial $false
+Get-VirtualDisk
+Get-Volume
+Get-Partition
+Get-SmbShare
+Get-SmbShareAccess -Name Documentation
+Get-Acl -LiteralPath &quot;E:\DATA\Documentation&quot;</code></pre></div><h2>Scripting : les bases</h2><div class="tablewrap"><table><thead><tr><th>Notion</th><th>Utilité</th></tr></thead><tbody><tr><td>Read-Host</td><td>Saisie utilisateur</td></tr><tr><td>-AsSecureString</td><td>Mot de passe masqué</td></tr><tr><td>Write-Host</td><td>Affichage terminal</td></tr><tr><td>$null</td><td>Absence de valeur</td></tr><tr><td>-eq / -ne</td><td>Égal / différent</td></tr><tr><td>if / else</td><td>Condition</td></tr><tr><td>try / catch</td><td>Gestion d'erreur</td></tr><tr><td>-ErrorAction Stop</td><td>Transformer une erreur non bloquante en erreur bloquante</td></tr><tr><td>$_.Exception.Message</td><td>Message dans catch</td></tr><tr><td>foreach</td><td>Parcourir une collection</td></tr><tr><td>do / while</td><td>Répéter au moins une fois</td></tr><tr><td>Select-Object</td><td>Sélectionner des propriétés</td></tr><tr><td>Out-File -Append</td><td>Ajouter des lignes à un fichier</td></tr></tbody></table></div><ul><li>Le pipe transmet des objets d'une commande à la suivante.</li><li>Une variable contenant le résultat d'une lecture AD n'est pas actualisée automatiquement après une modification.</li><li>Privilégier Get-Help Nom-Commande -Examples et Get-Command Nom-Commande -Syntax.</li></ul><h2>Prudence</h2><p>Les commandes de lecture sont à privilégier pour diagnostiquer. Les commandes de modification doivent être testées sur le lab, avec les droits nécessaires et après vérification des objets/chemins.</p></article><footer>Notes personnelles de formation · Administration Windows et AD · ASR02–02 · Exemples pédagogiques à vérifier sur le lab.</footer></main></div></body></html>

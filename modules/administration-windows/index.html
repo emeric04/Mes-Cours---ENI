@@ -1,0 +1,667 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Administration Windows · ENI ASR</title><link rel="stylesheet" href="../../assets/style.css"><script defer src="../../assets/app.js"></script></head><body><header><a class="brand" href="../../index.html"><span class="mark">ENI / ASR</span><span>Base de connaissances</span></a><button id="theme" type="button">Mode sombre</button></header><div class="layout"><nav aria-label="Navigation"><div class="links"><a href="../../index.html">Accueil ENI</a><a href="index.html" aria-current="page">Administration Windows</a></div><h2>Cours</h2><div class="links"><a href="cours/01-contextes.html">01 · Contextes de travail</a><a href="cours/02-windows-server.html">02 · Gestion de Windows Server</a><a href="cours/03-active-directory.html">03 · Domaine Active Directory</a><a href="cours/04-ressources.html">04 · Accès aux ressources</a><a href="cours/05-gpo.html">05 · Stratégies de groupe (GPO)</a></div><h2>TP</h2><div class="links"><a href="tp/tp01-infrastructure/index.html">TP 01 · Création de l’infrastructure</a><a href="tp/tp02-domaine/index.html">TP 02 · Création du domaine AD</a><a href="tp/tp03-gestion-ad/index.html">TP 03 · Gestion d’un domaine AD</a><a href="tp/tp04-ressources/index.html">TP 04 · Gestion des ressources</a><a href="tp/tp05-gpo/index.html">TP 05 · Stratégies de groupe</a></div><h2>Fiches</h2><div class="links"><a href="fiches/commandes.html">PowerShell &amp; CMD</a><a href="fiches/raccourcis.html">Raccourcis Windows</a><a href="fiches/infra.html">Infrastructure du lab</a></div><h2>Scripts</h2><div class="links"><a href="scripts/index.html">Bibliothèque de scripts</a></div><h2>Modèles</h2><div class="links"><a href="modeles/index.html">Compte rendu &amp; correction</a></div></nav><main><section class="hero"><div class="eyebrow">Cursus ASR · Module ASR02–02</div><h1>Administration Windows<br>et Active Directory</h1><p>Ton espace de révision et d'exploitation : cours synthétiques, ateliers, commandes et scripts.</p><div class="metrics"><div class="metric"><strong>05</strong><span>Chapitres</span></div><div class="metric"><strong>05</strong><span>Ateliers guidés</span></div><div class="metric"><strong>05</strong><span>Scripts PowerShell</span></div></div></section><label for="search" class="muted">Rechercher un thème, un TP ou une commande</label><input class="search" id="search" type="search" placeholder="Ex. FSMO, NTFS, gpresult…"><p id="count" aria-live="polite" class="muted"></p><h2>Cours</h2><div class="grid"><a class="tile" data-search="## Les trois modèles
+| Modèle | Hébergement | Accès et gestion |
+|---|---|---|
+| On-premises | Serveurs internes | Réseau privé ; accès distant généralement par VPN ; administration interne ou prestataire |
+| Cloud | Datacenters d’un prestataire | Accès réseau aux services hébergés ; gestion de l’infrastructure confiée au fournisseur |
+| Hybride | Interne + cloud | Les ressources sont réparties entre les deux environnements |
+
+## À retenir
+- Les services concernés sont notamment l'authentification, le partage de fichiers, la messagerie et le web.
+- Le modèle hybride permet de garder certains services locaux tout en externalisant d'autres applications.
+- Le choix dépend des besoins, de la disponibilité, de la maîtrise des données et des accès.
+
+## Exemple de lecture
+&gt; Un annuaire AD DS et des fichiers locaux, associés à une messagerie hébergée, illustrent un environnement hybride.
+
+## Auto-évaluation
+- Où se situent les données dans chacun des trois modèles ?
+- Comment un utilisateur nomade accède-t-il aux ressources ?
+- Qui assure l'exploitation des serveurs ?" href="cours/01-contextes.html"><span class="num">Cours 01</span><strong>Contextes de travail</strong><small>On-premises, cloud et hybride</small></a><a class="tile" data-search="## Éditions (repères du support Windows Server 2022)
+| Édition | Public | Virtualisation Hyper-V (repère du support) |
+|---|---|---|
+| Essentials | Petite entreprise ; 25 utilisateurs ou 50 périphériques | 1 VM Essentials |
+| Standard | Besoins standards ; CAL | 2 VM sous les conditions de licence |
+| Datacenter | Forte virtualisation ; CAL | Nombre de VM Windows Server illimité sous les conditions de licence |
+
+Pour un achat ou un audit de licence, vérifier les conditions Microsoft applicables : ces repères ne constituent pas un calcul de licences.
+
+## Mode d'installation
+| Expérience de bureau | Server Core |
+|---|---|
+| Interface graphique locale | Interface locale minimale |
+| Consoles accessibles directement | Administration distante ou en commande |
+| Plus de ressources | Empreinte et surface d'attaque réduites |
+Le choix s'effectue à l'installation ; ne pas compter sur une conversion directe entre modes.
+
+## Configuration initiale
+- Nom d'hôte et suffixe DNS ; adressage IP cohérent ; vérifier l'existant.
+- Gestionnaire de serveur : rôles et fonctionnalités.
+- MMC et RSAT : administration locale ou distante.
+- Windows Admin Center (WAC) : console web HTTPS.
+- PowerShell : automatisation ; CMD : commandes historiques.
+
+## Surveillance
+| Outil | Action |
+|---|---|
+| Ctrl + Maj + Échap | Gestionnaire des tâches ; processus, CPU, RAM, disque, réseau |
+| resmon | Moniteur de ressources ; détail par processus |
+| perfmon | Compteurs, collecte planifiée, rapports |
+| eventvwr.msc | Journaux Windows et événements de rôles |
+
+| Journal | Contenu |
+|---|---|
+| Application | Applications |
+| Sécurité | Audit |
+| Système | Système d'exploitation |
+| Journaux dédiés | Rôles/services |
+Vues personnalisées, abonnements et tâches sur événement sont disponibles.
+
+## Commandes de contrôle (compléments pratiques)
+~~~powershell
+hostname
+Get-NetIPConfiguration
+Get-Service
+Get-WinEvent -LogName Application -MaxEvents 30
+~~~
+## Réflexe terrain
+- Définir des compteurs de référence avant d'ajouter un rôle.
+- Lors d'un incident : comparer CPU, mémoire, disque, réseau, puis examiner les événements à l'heure du problème. Ne pas déduire la cause d'une seule métrique." href="cours/02-windows-server.html"><span class="num">Cours 02</span><strong>Gestion de Windows Server</strong><small>Éditions, consoles, performances</small></a><a class="tile" data-search="## Du groupe de travail au domaine
+| Workgroup | Domaine AD DS |
+|---|---|
+| Comptes locaux SAM | Authentification centralisée |
+| Gestion machine par machine | Comptes, groupes, GPO et délégations centralisés |
+| Petite installation | Administration à l'échelle d'une organisation |
+
+AD s'appuie notamment sur TCP/IP, DNS, LDAP et Kerberos ; la synchronisation horaire est importante pour l'authentification. DHCP peut faciliter l'adressage.
+
+## Structure logique et données
+| Élément | Rôle |
+|---|---|
+| Forêt | Schéma et catalogue global communs ; ensembles de domaines |
+| Arbre | Hiérarchie de domaines partageant un espace de noms DNS |
+| Domaine | Annuaire et périmètre d'administration |
+| OU | Organisation des objets, GPO et délégation |
+| Objet | Utilisateur, groupe, ordinateur, etc. |
+- Partitions : domaine (objets), schéma (classes/attributs), configuration (sites, services) et partitions applicatives dont DNS intégré.
+- Le catalogue global (GC) fournit une vue à l'échelle de la forêt ; il contient notamment un sous-ensemble des attributs des objets des autres domaines et facilite recherches et ouverture de session.
+- Les conteneurs natifs (Builtin, Computers, System, Users) sont distincts des OU créées par l'administrateur.
+
+## Contrôleurs de domaine
+| Composant | Fonction |
+|---|---|
+| AD DS | Authentification et annuaire |
+| NTDS | Base AD ; C:\Windows\NTDS |
+| SYSVOL | Fichiers des stratégies/scripts ; C:\Windows\SYSVOL |
+| DC inscriptibles | Réplication multimaître |
+| RODC | Copie en lecture seule ; réplication entrante et stratégie de cache des mots de passe |
+Le RODC convient notamment à un site où la sécurité physique est plus faible. Le GC se configure lors de la promotion ou dans les propriétés NTDS Settings.
+
+## Les cinq rôles FSMO
+| Rôle | Portée | Utilité |
+|---|---|---|
+| Schema Master | Forêt | Écriture du schéma |
+| Domain Naming Master | Forêt | Ajout/suppression de domaines et partitions |
+| PDC Emulator (CDP) | Domaine | Temps, traitement prioritaire des changements de mot de passe, référence d'administration GPO |
+| RID Master | Domaine | Distribue des plages de RID pour les SID |
+| Infrastructure Master | Domaine | Références inter-domaines |
+Transférer un rôle si son détenteur est joignable ; saisir le rôle uniquement en situation de récupération, avec procédure de retrait du détenteur perdu. Dans le TP, RID et PDC passent à CD2.
+
+~~~powershell
+netdom query fsmo
+Get-ADForest | Select-Object *Master
+Get-ADDomain | Select-Object PDCEmulator,*Master
+~~~
+
+## Déploiement d'un domaine
+- Nom et IP statiques ; DNS approprié ; installation AD DS ; choisir le scénario et le niveau fonctionnel.
+- Nouvelle forêt, nouveau domaine dans une forêt ou DC supplémentaire : ne pas confondre.
+- Windows Server 2022 est compatible avec les niveaux fonctionnels 2016 et 2012 R2 présentés p. 52 ; il ne peut pas être DC d'un domaine au niveau 2025.
+- Avant dépromotion : vérifier FSMO, autres DNS et GC, état de réplication.
+
+~~~powershell
+# Installation du role
+Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+# Simulation/prerequis du TP
+Test-ADDSForestInstallation -DomainName &quot;domED.ad&quot;
+# Commandes de promotion (modifier uniquement dans le lab)
+Install-ADDSForest -DomainName &quot;domED.ad&quot;
+# Depuis CD2, avec DNS et droits corrects
+Install-ADDSDomainController -DomainName &quot;domED.ad&quot;
+~~~
+Les assistants demandent le secret DSRM ; ne jamais l'inscrire dans le dépôt. Promotion et dépromotion peuvent redémarrer un serveur. Comman" href="cours/03-active-directory.html"><span class="num">Cours 03</span><strong>Domaine Active Directory</strong><small>AD DS, FSMO, objets, sites et réplication</small></a><a class="tile" data-search="## Autorisations NTFS
+- Les ACL contiennent des entrées (ACE) pour les identités de sécurité (SID).
+- Accorder les droits aux groupes plutôt qu'aux comptes individuels.
+- Les droits accordés se cumulent ; un refus explicite sur un droit est prioritaire sur une autorisation explicite correspondante. Tenir compte de l'héritage et des droits spéciaux.
+| Droit de base | Usage |
+|---|---|
+| Lecture | Lire les fichiers |
+| Lecture et exécution | Lire et lancer |
+| Liste du dossier | Parcourir le contenu |
+| Écriture | Créer et écrire |
+| Modification | Lire, écrire et supprimer |
+| Contrôle total | Modification + gestion des permissions notamment |
+
+## Héritage
+| Opération | Même volume NTFS | Autre volume |
+|---|---|---|
+| Copie | Hérite de la destination normalement | Hérite de la destination normalement |
+| Déplacement | Conserve généralement ses ACL | Hérite de la destination normalement |
+Outils et options de copie peuvent modifier ce comportement. Conserver SYSTEM et administrateurs ; vérifier les droits hérités avant de les désactiver.
+
+## Partages SMB
+| Partage | NTFS | Résultat réseau |
+|---|---|---|
+| Lecture | Contrôle total | Lecture |
+| Contrôle total | Modification | Modification |
+| Modification | Lecture | Lecture |
+&gt; Droits effectifs réseau = intersection des autorisations de partage et NTFS. Un partage masqué ($) n'est pas une protection.
+
+~~~powershell
+Get-SmbShare
+Get-SmbShareAccess -Name &quot;Documentation&quot;
+Get-Acl -LiteralPath &quot;E:\DATA\Documentation&quot; | Format-List
+~~~
+New-SmbShare, Set-SmbShare, Remove-SmbShare : gestion des partages. Un chemin UNC s'écrit \\SRV1\Documentation.
+
+## AGDLP
+A (comptes) → G (groupes globaux de service) → DL (groupes de domaine local par ressource/droit) → P (permissions).
+- Global : qui est la personne ? DL : à quelle ressource peut-elle accéder ?
+- Exemple : Christelle → G-Comptabilité → DL-Compta-Modification → ACL du dossier Compta.
+- Les permissions sont affectées aux DL ; vérifier aussi les groupes imbriqués.
+
+## Stockage résilient (TP04)
+- Pool : agrège des disques physiques. Disque virtuel : capacité + résilience. Volume : système de fichiers et montage.
+- Miroir à deux voies : deux copies, tolérance à la perte d'un disque si état sain ; ce n'est pas une sauvegarde.
+- Trois disques SCSI de 20 Go sur SRV1 ; DATA 10 Go NTFS E:\ ; USERS 5 Go NTFS C:\Base.
+~~~powershell
+Get-StoragePool -IsPrimordial $false
+Get-PhysicalDisk
+Get-VirtualDisk | Select-Object FriendlyName,HealthStatus,ResiliencySettingName,NumberOfDataCopies,PhysicalDiskRedundancy
+Get-Volume
+Get-Partition | Select-Object DiskNumber,DriveLetter,AccessPaths
+~~~
+
+## Impression
+| Concept | Fonction |
+|---|---|
+| Périphérique d'impression | Matériel physique |
+| Imprimante | Objet logique associé au port/pilote |
+| Serveur d'impression | Centralise files, pilotes, ports et partages |
+| Droits | Imprimer, gérer les documents, gérer l'imprimante |
+Déploiement manuel, script ou GPO. Plusieurs files peuvent utiliser le même périphérique ; utile pour des créneaux d'impression différents.
+
+## Délégation AD
+- Définir qui, quelle tâche, quelle OU ; appliquer le moindre privilège.
+- ADUC → clic droit sur OU → Délégation de contrôle → groupe → tâches.
+- Mettre à disposition RSAT ou une MMC personnalisée pour l'opérateur.
+- Tester avec son compte : opération autorisée dans l'OU, opération refusée hors périmètre." href="cours/04-ressources.html"><span class="num">Cours 04</span><strong>Accès aux ressources</strong><small>NTFS, SMB, AGDLP, impression et délégation</small></a><a class="tile" data-search="## Fonctionnement
+- Une GPO centralise les paramètres ordinateur et utilisateur : sécurité, système, scripts, déploiement et applications.
+- Le registre contient des ruches, clés et valeurs. HKLM concerne l'ordinateur, HKCU l'utilisateur courant ; HKCR les classes, HKU les profils chargés, HKCC le profil matériel.
+- Stratégie locale : poste individuel. Stratégie de domaine : objets ciblés par liaison, avec priorité habituelle sur la locale.
+- Les clients récupèrent/appliquent les stratégies à l'aide des extensions CSE ; données GPO dans AD et SYSVOL.
+- Actualisation habituelle : postes/serveurs membres 90 min + délai aléatoire jusqu'à 30 min ; DC 5 min. Certains réglages exigent une nouvelle session ou un redémarrage.
+
+## Ciblage et priorité
+| Mécanisme | Rôle |
+|---|---|
+| Site, domaine, OU | Emplacements de liaison |
+| Ordinateur / utilisateur | Les deux sections de configuration |
+| Sécurité | Filtre les objets autorisés à lire/appliquer |
+| WMI | Ciblage par critères système |
+| Blocage d'héritage | Empêche les liaisons parentes non appliquées (non forcées) |
+| Appliqué / forcé (Enforced) | Lien prioritaire qui dépasse le blocage |
+Ordre habituel LSDOU : locale, site, domaine, OU parent vers enfant ; au même niveau, l'ordre de liaison 1 a la priorité. Les liens forcés peuvent modifier cette logique.
+Un groupe AD sert au filtrage mais n'est pas une cible de liaison. Pour les paramètres utilisateur, conserver les droits de lecture nécessaires aux ordinateurs.
+
+## Administration et diagnostic
+~~~cmd
+gpmc.msc
+gpupdate /force
+gpresult /r
+gpresult /h resultat-gpo.html
+~~~
+- GPO absente du rapport : vérifier OU, liaison, filtrage, lecture, réplication et WMI.
+- GPO présente mais effet absent : conflit, paramètre/OS incompatibles, session à relancer.
+- Tester les comptes ciblés ET non ciblés ; générer un rapport, relever le résultat réel.
+
+## Modèles d'administration
+| Fichier | Rôle |
+|---|---|
+| ADMX | Définition des paramètres |
+| ADML | Ressources dans chaque langue |
+| C:\Windows\PolicyDefinitions | Magasin local |
+| \\domED.ad\SYSVOL\domED.ad\Policies\PolicyDefinitions | Magasin central |
+Copier des modèles compatibles et leurs fichiers de langue ; vérifier le magasin utilisé dans l'éditeur.
+
+## Politiques de compte
+- Stratégie de domaine (souvent Default Domain Policy, ou GPO dédiée liée au domaine) pour les comptes du domaine.
+- Une GPO classique liée à une OU ne permet pas de définir une politique de mot de passe distincte pour ces seuls utilisateurs de domaine.
+- PSO (Fine-Grained Password Policy) : objet hors GPO, dans System / Password Settings Container ; affectable aux utilisateurs ou groupes globaux de sécurité.
+
+~~~powershell
+Get-ADDefaultDomainPasswordPolicy
+Get-ADFineGrainedPasswordPolicy -Filter *
+Get-ADUserResultantPasswordPolicy -Identity ivedere
+~~~
+## Exemples du TP05
+- Pare-feu et dernier identifiant ; restrictions Direction et intérimaires ; stratégie de compte ; imprimante ; magasin central.
+- Préférences : ciblage d'éléments, groupes locaux. Redirection Documents et RDP avec NLA.
+- La PSO informatique impose 2 échecs puis déverrouillage par administrateur dans l'atelier (pas une recommandation universelle de production)." href="cours/05-gpo.html"><span class="num">Cours 05</span><strong>Stratégies de groupe (GPO)</strong><small>Ciblage, héritage, ADMX et politiques de compte</small></a></div><h2>Travaux pratiques</h2><div class="grid"><a class="tile" data-search="## Préparer le lab
+- VMware Workstation et accès aux ISO fournis.
+- Stocker chaque VM dans un dossier distinct sur D: ; réseau host-only.
+| Machine | OS | CPU / RAM / disque | IP |
+|---|---|---|---|
+| CD1 | Windows Server 2022 | 1 / 4 Go / 40 Go | 192.168.21.1/16 |
+| SRV1 | Windows Server 2022 | 1 / 2 Go / 40 Go | 192.168.21.10/16 |
+| Win-CL1 | Windows 11 | 1 / 4 Go / 40 Go | 192.168.21.20/16 |
+Win-CL1 est aussi noté W11-CL1 dans l'énoncé. Les configurations effectives peuvent être différentes, les renseigner dans le compte rendu.
+
+## Collecte de performances sur CD1
+- perfmon : créer un ensemble de collecteurs défini par l'utilisateur (compteurs).
+- CPU : temps d'utilisation et d'inactivité ; mémoire : Mo disponibles et pages/s ; disque : latences lecture/écriture, temps actif et inactif.
+- Cible C:\PerfLogs ; nom CompteurBase-AAMMJJ (date automatique).
+- Démarrage à +30 min, durée 10 min, répétition quotidienne jusqu'au vendredi.
+- Consulter ensuite Rapports et vérifier les valeurs.
+
+## WAC et administration distante
+- Installer le MSI fourni sur SRV1 ; suivre les paramètres de l'assistant.
+- Accéder à https://srv1:443 ; attention, schéma p. 2 indique 6516 alors que texte p. 3 impose 443 : vérifier le port réellement installé.
+- Activer RDP sur SRV1 depuis WAC, tester depuis Win-CL1 et ajouter CD1 à WAC.
+- Rechercher l'installation WAC dans l'Observateur d'événements ; relever date, heure, version.
+~~~cmd
+ipconfig /all
+ping 192.168.21.1
+perfmon
+eventvwr.msc
+mstsc
+~~~
+## Livrables
+- [ ] Trois VM, IP et réseau corrects.
+- [ ] Collecteur et planification documentés ; rapport de mesures.
+- [ ] WAC opérationnel, RDP testé et CD1 ajouté.
+- [ ] Trace d'installation WAC (date, heure, version)." href="tp/tp01-infrastructure/index.html"><span class="num">TP 01</span><strong>Création de l’infrastructure</strong><small>VMware, PerfMon et Windows Admin Center</small></a><a class="tile" data-search="## Pré-requis
+TP01 fonctionnel ; CD1 192.168.21.1, SRV1 .10, Win-CL1 .20, masque /16.
+
+## CD1 : première forêt
+- Configurer IP statique et nom ; installer AD DS avec outils de gestion.
+- Simuler/prévalider la promotion, puis promouvoir CD1 dans domED.ad (NN remplacé par ED).
+~~~powershell
+Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+Test-ADDSForestInstallation -DomainName &quot;domED.ad&quot;
+Install-ADDSForest -DomainName &quot;domED.ad&quot;
+~~~
+Saisir le mot de passe DSRM à l'invite ; sauvegarder le lab avant promotion.
+
+## CD2 et intégrations
+- Nouvelle VM CD2 : Windows Server 2022, 1 CPU, 4 Go RAM, 40 Go, host-only, 192.168.21.2/16.
+- Configurer DNS vers CD1, joindre CD2 au domaine, installer AD DS puis promouvoir comme DC supplémentaire.
+- Joindre SRV1 et Win-CL1 : DNS interne à l'AD ; tester authentification.
+- Installer les RSAT sur Win-CL1 ; ouvrir Centre d'administration AD et créer un compte à son identité.
+~~~powershell
+# Sur CD2 apres jonction
+Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+Install-ADDSDomainController -DomainName &quot;domED.ad&quot;
+# Sur un poste membre, verifier le canal
+Test-ComputerSecureChannel
+~~~
+
+## Rôles FSMO
+Transférer RID Master et PDC Emulator à CD2 ; les autres restent sur CD1 dans ce scénario.
+~~~powershell
+Move-ADDirectoryServerOperationMasterRole -Identity CD2 -OperationMasterRole RIDMaster,PDCEmulator
+netdom query fsmo
+repadmin /replsummary
+~~~
+## Livrables
+- [ ] CD1 et CD2 promus ; réplication fonctionnelle.
+- [ ] SRV1 et Win-CL1 joints ; authentification testée.
+- [ ] RSAT + utilisateur créé depuis le client.
+- [ ] Preuve netdom query fsmo (RID et PDC sur CD2)." href="tp/tp02-domaine/index.html"><span class="num">TP 02</span><strong>Création du domaine AD</strong><small>Promotion CD1/CD2, RSAT, FSMO</small></a><a class="tile" data-search="## OU et comptes modèles
+~~~text
+domED.ad
+└── Société ASR
+    ├── Utilisateurs
+    │   ├── Direction
+    │   ├── Informatique
+    │   └── Comptabilité
+    ├── Groupes
+    │   ├── Direction
+    │   ├── Informatique
+    │   └── Comptabilité
+    ├── Postes de travail / Clients
+    └── Serveurs
+        ├── Contrôleurs de domaine
+        └── Serveurs membres
+~~~
+| Modèle | Attributs demandés |
+|---|---|
+| Direction | Nantes, 44000, Direction, Société ASR |
+| Informatique | Service Informatique |
+| Comptabilité | Service Comptabilité, horaires lundi–samedi 07 h–21 h |
+ADUC → clic droit sur le modèle → Copier. Contrôler les attributs et l'OU. Attention en pratique : les DC sont normalement conservés dans l'OU Domain Controllers ; le déplacement demandé doit être encadré et les GPO DC contrôlées.
+
+## Utilisateurs
+| Nom | Login | Service / fonction | Tél. |
+|---|---|---|---|
+| David Grenier | dgrenier | Direction / Directeur Comptabilité Finances | 504 |
+| Isabelle Védère | ivedere | Informatique / Administratrice systèmes et réseaux | 666 |
+| Ivan Tard | itard | Informatique / Support technique | — |
+| Christelle Urique | curique | Comptabilité / Comptable | — |
+| Christophe Talmie | ctalmie | Comptabilité / Comptable intérimaire | — |
+- Tous sont désactivés et sans mot de passe lors de la création.
+- Activer David, Isabelle et Christelle après saisie sécurisée du secret prévu par l'énoncé ; ne pas le versionner.
+- Christophe : date d'expiration au 31 décembre de l'année en cours. L'expiration ne change pas la propriété Enabled.
+- Tester une ouverture de session de domaine.
+
+## Groupes de sécurité globaux
+| Groupe | Membres directs |
+|---|---|
+| G-Direction | Modèle Direction, David ; mail direction@domED.fr |
+| G-Informatique | Modèle Informatique, G-Support technique, Isabelle |
+| G-Support technique | Ivan |
+| G-Comptabilité | Christelle, Christophe |
+| G-Intérimaires | Christophe |
+~~~powershell
+# Adapter l'OU si necessaire (exemple conforme au schema du TP)
+New-ADGroup -Name &quot;G-Intérimaires&quot; -GroupScope Global -GroupCategory Security -Path &quot;OU=Comptabilité,OU=Groupes,OU=Société ASR,DC=domED,DC=ad&quot;
+Add-ADGroupMember -Identity &quot;G-Intérimaires&quot; -Members ctalmie
+Get-ADGroupMember -Identity &quot;G-Intérimaires&quot;
+~~~
+
+## Requête enregistrée : Comptes désactivés
+ADUC → Requêtes enregistrées → Nouveau → Requête ; nom Comptes désactivés ; racine domaine, sous-conteneurs ; Définir la requête → Recherches communes → Utilisateurs → Comptes désactivés. Ivan et Christophe attendus, ainsi que les autres comptes désactivés.
+
+## Sites
+- Renommer site par défaut Siege ; créer Agence ; associer 172.16.0.0/16 à Agence (sans DC).
+- Vérifier DNS et sous-réseaux ; exécuter nltest depuis Win-CL1.
+~~~cmd
+nltest /dsgetsite
+~~~
+
+## Bonus
+- Exporter les groupes globaux créés et leurs membres directs dans livrables/ctrl_membres_groupes.txt.
+- Exporter les propriétés de David dans livrables/detail_user_David.txt.
+- Scripts réutilisables disponibles dans la rubrique Scripts ; les exports ne sont pas des preuves tant qu'ils n'ont pas été générés sur le lab.
+
+## Livrables
+- [ ] Modèles, 5 comptes, activations et expiration vérifiés.
+- [ ] Groupes et OU ; groupe intérimaires créé en commande.
+- [ ] Requête et sites ; vérification depuis Win-CL1.
+- [ ] Exports bonus, si réalisés." href="tp/tp03-gestion-ad/index.html"><span class="num">TP 03</span><strong>Gestion d’un domaine AD</strong><small>Modèles, utilisateurs, groupes, OU et sites</small></a><a class="tile" data-search="## 1 — Stockage sur SRV1
+- VM éteinte : ajouter 3 disques SCSI 20 Go ; démarrer, vérifier qu'ils sont détectés. Ne pas initialiser le disque système.
+- Gestionnaire de serveur → Services de fichiers et de stockage → Pools de stockage ; créer un pool avec les trois nouveaux disques.
+- Créer deux disques virtuels en miroir à deux voies si disponible, puis volumes NTFS.
+| Volume | Taille | Accès |
+|---|---|---|
+| DATA | 10 Go | E:\ |
+| USERS | 5 Go | C:\Base (dossier NTFS vide) |
+~~~powershell
+Get-StoragePool -IsPrimordial $false
+Get-VirtualDisk | Select-Object FriendlyName,HealthStatus,ResiliencySettingName,NumberOfDataCopies,PhysicalDiskRedundancy
+Get-Partition | Select-Object DiskNumber,DriveLetter,AccessPaths
+~~~
+Attendu : Healthy, Mirror, 2 copies, redondance 1 ; vérifier avant toute simulation. Ne pas détacher un disque sans sauvegarde ni procédure de récupération.
+
+## 2 — Arborescence et partages
+~~~text
+E:\DATA
+├── Documentation
+├── Informatique
+└── Services
+    └── Comptabilité
+~~~
+| Partage | UNC | Droits effectifs attendus |
+|---|---|---|
+| Documentation | \\SRV1\Documentation | Tous lecture, IT total, intérimaires aucun ; publier dans AD |
+| Compta | \\SRV1\Compta | Comptabilité modification, IT total, autres aucun |
+| Info$ | \\SRV1\Info$ | IT total, autres aucun (masqué) |
+
+## 3 — AGDLP : groupes de domaine local
+Cette proposition met en œuvre les droits demandés ; adapter les groupes selon la maquette.
+| Groupe DL de sécurité | Membres ou rôle |
+|---|---|
+| DL-Documentation-Lecture | Utilisateurs du domaine (lecture) |
+| DL-Documentation-ControleTotal | G-Informatique |
+| DL-Documentation-Refus | G-Intérimaires (refus sur Documentation uniquement) |
+| DL-Compta-Modification | G-Comptabilité |
+| DL-Compta-ControleTotal | G-Informatique |
+| DL-Info-ControleTotal | G-Informatique |
+- Appliquer les DL aux ACL de partage et NTFS. Enlever les autorisations larges non souhaitées ; conserver SYSTEM et administrateurs.
+- Le refus sur Documentation couvre les intérimaires qui appartiennent aussi aux groupes autorisés ; ne pas refuser « Tout le monde » ni utiliser un refus global sur Compta/Info$.
+- Publication AD : créer un objet dossier partagé dans l'OU appropriée avec le chemin UNC (console ADUC, selon affichage/options).
+- Après changement de groupes, rouvrir la session de test.
+~~~powershell
+Get-SmbShare
+Get-SmbShareAccess -Name Documentation
+Get-SmbShareAccess -Name Compta
+Get-SmbShareAccess -Name 'Info$'
+~~~
+
+## 4 — Tests depuis Win-CL1
+Ce tableau donne les attentes théoriques, pas des observations. Les comptes Ivan/Christophe doivent être activés de manière contrôlée pour les tests qui exigent une connexion, puis remis dans l'état convenu.
+| Partage / compte | Action | Attendu | Observé |
+|---|---|---|---|
+| Documentation / Christophe | Accès | Refus | À compléter |
+| Documentation / Christelle | Accès | Autorisé | À compléter |
+| Documentation / David | Lecture | Autorisée | À compléter |
+| Documentation / Isabelle | Lecture | Autorisée | À compléter |
+| Documentation / Christelle | Modification | Refus | À compléter |
+| Documentation / Isabelle | Modification | Autorisée | À compléter |
+| Compta / Christelle | Accès | Autorisé | À compléter |
+| Compta / David | Accès | Refus | À compléter |
+| Compta / Christelle | Modification | Autorisée | À compléter |
+| Compta / Isabelle | Contrôle total | Autorisé | À compléter |
+
+## 5 — Délégations AD
+| Compte | Périmètre | Tâche |
+|---|---|---|
+| David | Utilisateurs/Comptabilité | Réi" href="tp/tp04-ressources/index.html"><span class="num">TP 04</span><strong>Gestion des ressources</strong><small>Stockage, partages, AGDLP, impression et délégation</small></a><a class="tile" data-search="## Méthode pour chaque GPO
+Créer → lier à l'OU → configurer → gpupdate /force → rouvrir session si nécessaire → gpresult → tester ciblés/non ciblés.
+~~~cmd
+gpmc.msc
+gpupdate /force
+gpresult /r
+gpresult /h resultat-gpo.html
+~~~
+
+## 1–3 — Ciblage
+| GPO | Cible | Paramètres |
+|---|---|---|
+| GPO-Postes-Commun-Securite | OU Clients | Masquer dernier identifiant, activer pare-feu |
+| GPO-Utilisateurs-Direction-Restrictions | OU Utilisateurs/Direction | Bloquer propriétés Ce PC, Certificats MMC, Regedit, Gestionnaire des tâches |
+| GPO-Utilisateurs-Interimaires-Restrictions | Filtrage G-Intérimaires | Corbeille masquée ; pas d'animation de bienvenue ; bloquer accès CD/DVD |
+- Vérifier David (restriction Direction), Isabelle (pas de restriction Direction), Christophe (restriction intérimaires).
+- Si un réglage est uniquement ordinateur, il ne peut pas suivre un utilisateur sur un poste partagé par simple filtrage utilisateur ; vérifier la portée exacte de l'animation de bienvenue et du blocage des médias, documenter limite et solution avec le formateur. Préserver la lecture GPO nécessaire aux ordinateurs.
+- Utilisateurs désactivés : prévoir une activation temporaire contrôlée pour les tests puis restaurer l'état convenu.
+
+## 4 — Mot de passe et verrouillage
+| Politique domaine | Valeur demandée |
+|---|---|
+| Longueur minimale | 10 caractères |
+| Complexité | Activée |
+| Historique | 20 |
+| Âge maximal | 30 jours |
+GPO-Domaine-Politique-MotsDePasse liée au domaine (ou Default Domain Policy selon procédure). Ces valeurs sont celles du lab.
+- PSO dédiée à G-Informatique : 2 tentatives échouées, durée de verrouillage 0 (= déverrouillage administrateur), paramètres restants cohérents avec la politique domaine.
+- Centre d'administration AD → System → Password Settings Container ; sélectionner le groupe et vérifier PSO résultante. Effectuer le test avec un compte de laboratoire non critique ; prévoir un compte admin distinct.
+~~~powershell
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUserResultantPasswordPolicy -Identity ivedere
+Search-ADAccount -LockedOut
+~~~
+
+## 5–6 — Imprimante et magasin central
+- GPO-Utilisateurs-Deploiement-Imprimante : Préférences → imprimante partagée (Dell 5210CN depuis SRV1), ciblage par service/groupe au niveau élément ou sécurité. Vérifier installation automatique et absence chez non-ciblé.
+- Centraliser ADMX et dossiers langues ADML compatibles dans \\domED.ad\SYSVOL\domED.ad\Policies\PolicyDefinitions.
+- Vérifier depuis Win-CL1 que l'éditeur utilise le magasin central.
+
+## 7 — Droits locaux, dossiers et RDP
+| Cas | Mise en œuvre proposée | Contrôle |
+|---|---|---|
+| Support | Ajouter G-Support technique aux opérateurs de configuration réseau locaux via GPP, sans écraser les autres membres | Ivan sur client |
+| Documents | Rediriger vers \\SRV1\Users$ ; tous sauf intérimaires ; permissions individualisées | Fichier utilisateur et non-application à Christophe |
+| RDP/NLA | GPO sur OU Serveurs membres : autoriser RDP, exiger NLA, ouvrir les règles pare-feu nécessaires et ajouter G-Support technique aux utilisateurs du Bureau à distance | SRV1 après gpupdate |
+- Désactiver RDP sur SRV1 avant le test prévu, conserver un accès console pour récupérer la machine.
+- Utiliser un partage Users$ distinct, par exemple C:\Base si prévu ; tester le cloisonnement des dossiers. Exclusion intérimaires par filtrage adapté.
+- Pour RDP, vérifier aussi le droit d'ouverture de session via Services Bureau à distance et les refus éventuels.
+
+## Livr" href="tp/tp05-gpo/index.html"><span class="num">TP 05</span><strong>Stratégies de groupe</strong><small>Sécurité, restrictions, PSO, imprimante et RDP</small></a></div><h2>Fiches de référence</h2><div class="grid"><a class="tile" data-search="## Active Directory / lecture
+~~~powershell
+Import-Module ActiveDirectory
+Get-ADUser -Filter {Enabled -eq $false}
+Get-ADUser -Identity dgrenier -Properties *
+Get-ADGroup -Filter {GroupScope -eq &quot;Global&quot;}
+Get-ADGroupMember -Identity &quot;G-Informatique&quot;
+Get-ADGroupMember -Identity &quot;G-Informatique&quot; -Recursive
+Get-ADDomain
+Get-ADForest
+Get-ADReplicationSubnet -Filter *
+Get-ADReplicationSite -Filter *
+~~~
+Sans -Recursive : membres directs (dont groupes imbriqués). Avec -Recursive : expansion des membres.
+
+## Réseau, DNS, domaine, GPO
+~~~cmd
+ipconfig /all
+ping 192.168.21.1
+nslookup domED.ad
+nltest /dsgetsite
+nltest /dsgetdc:domED.ad /force
+netdom query fsmo
+repadmin /replsummary
+repadmin /showrepl
+dcdiag /test:dns
+whoami /groups
+gpupdate /force
+gpresult /r
+gpresult /h resultat-gpo.html
+~~~
+
+## Stockage, partages et ACL
+~~~powershell
+Get-Disk
+Get-PhysicalDisk
+Get-StoragePool -IsPrimordial $false
+Get-VirtualDisk
+Get-Volume
+Get-Partition
+Get-SmbShare
+Get-SmbShareAccess -Name Documentation
+Get-Acl -LiteralPath &quot;E:\DATA\Documentation&quot;
+~~~
+
+## Scripting : les bases
+| Notion | Utilité |
+|---|---|
+| Read-Host | Saisie utilisateur |
+| -AsSecureString | Mot de passe masqué |
+| Write-Host | Affichage terminal |
+| $null | Absence de valeur |
+| -eq / -ne | Égal / différent |
+| if / else | Condition |
+| try / catch | Gestion d'erreur |
+| -ErrorAction Stop | Transformer une erreur non bloquante en erreur bloquante |
+| $_.Exception.Message | Message dans catch |
+| foreach | Parcourir une collection |
+| do / while | Répéter au moins une fois |
+| Select-Object | Sélectionner des propriétés |
+| Out-File -Append | Ajouter des lignes à un fichier |
+- Le pipe transmet des objets d'une commande à la suivante.
+- Une variable contenant le résultat d'une lecture AD n'est pas actualisée automatiquement après une modification.
+- Privilégier Get-Help Nom-Commande -Examples et Get-Command Nom-Commande -Syntax.
+
+## Prudence
+Les commandes de lecture sont à privilégier pour diagnostiquer. Les commandes de modification doivent être testées sur le lab, avec les droits nécessaires et après vérification des objets/chemins." href="fiches/commandes.html"><span class="num">Fiches Fiche</span><strong>PowerShell &amp; CMD</strong><small>Commandes classées par usage</small></a><a class="tile" data-search="## Les raccourcis essentiels
+| Combinaison | Fonction |
+|---|---|
+| Win + R | Exécuter une console |
+| Win + X | Menu système rapide |
+| Win + E | Explorateur |
+| Win + I | Paramètres |
+| Win + L | Verrouiller |
+| Ctrl + Maj + Échap | Gestionnaire des tâches |
+| Alt + Tab | Changer de fenêtre |
+| Win + Maj + S | Capture d'une zone |
+| Win + V | Historique presse-papiers |
+| Win + Tab | Vue des tâches |
+| Win + Ctrl + D | Créer un bureau virtuel |
+| Win + Ctrl + gauche/droite | Changer de bureau |
+| Win + Ctrl + F4 | Fermer le bureau virtuel |
+| Win + flèches | Ancrer les fenêtres |
+| Ctrl + Maj + N | Nouveau dossier |
+| F2 / F5 | Renommer / actualiser |
+| Alt + D | Barre d'adresse (chemin UNC) |
+| Alt + Entrée | Propriétés |
+| Maj + F10 | Menu contextuel |
+| Tab / Maj + Tab | Changer de champ |
+
+## Consoles à lancer (Win + R)
+| Commande | Outil |
+|---|---|
+| dsa.msc | ADUC |
+| dsac.exe | Centre d'administration AD |
+| dssite.msc | Sites et services AD |
+| domain.msc | Domaines et approbations |
+| adsiedit.msc | ADSI Edit (prudence) |
+| dnsmgmt.msc | DNS |
+| dhcpmgmt.msc | DHCP |
+| gpmc.msc | Gestion des GPO |
+| gpedit.msc | Stratégie locale |
+| secpol.msc | Sécurité locale |
+| compmgmt.msc | Gestion ordinateur |
+| fsmgmt.msc | Dossiers partagés |
+| diskmgmt.msc | Gestion disques |
+| printmanagement.msc | Gestion impression |
+| services.msc | Services |
+| eventvwr.msc | Événements |
+| devmgmt.msc | Périphériques |
+| ncpa.cpl | Réseau |
+| sysdm.cpl | Propriétés système |
+| wf.msc | Pare-feu avancé |
+| perfmon / resmon | Performances / ressources |
+| taskschd.msc | Planificateur |
+| mstsc | Client RDP |
+
+## RDP et Server Manager
+| Raccourci | Action |
+|---|---|
+| Ctrl + Alt + End | Ctrl+Alt+Suppr sur le serveur distant |
+| Ctrl + Alt + Break | Basculer plein écran distant |
+| Alt + Page Up/Down | Changer de programme distant |
+| Alt + M / V / H | Manage / View / Help dans Server Manager |
+| Alt + P / R / T | Propriétés locales / services ou gestion distante selon vue / NIC Teaming selon vue |
+| F5 | Actualiser |
+Certains raccourcis varient selon la version, la langue, la vue et les réglages de la session distante." href="fiches/raccourcis.html"><span class="num">Fiches Fiche</span><strong>Raccourcis Windows</strong><small>Consoles MMC, RDP, navigation</small></a><a class="tile" data-search="## Topologie de référence
+~~~text
+        domED.ad / VMware host-only
+       192.168.0.0/16 (site Siege)
+       ├─ CD1       192.168.21.1  AD DS / DNS
+       ├─ CD2       192.168.21.2  AD DS / DNS
+       ├─ SRV1      192.168.21.10 WAC / fichiers / impression
+       ├─ Win-CL1   192.168.21.20 Windows 11 / RSAT
+       └─ Dell      192.168.21.30 Périphérique d'impression (prévu)
+
+       Site Agence : 172.16.0.0/16
+       Aucun DC prévu à ce stade
+~~~
+| Élément | Attendu |
+|---|---|
+| FSMO CD1 | Schéma, noms de domaine, infrastructure |
+| FSMO CD2 | RID, émulateur PDC |
+| SRV1 | DATA E:\, USERS C:\Base, WAC et SMB |
+| Partages | Documentation, Compta, Info$, Users$ (TP05 si nécessaire) |
+| DNS | Serveurs AD internes |
+- Adresses ci-dessus : valeurs attendues, pas un audit des machines.
+- Le schéma TP01 présente WAC :6516, mais le texte et TP02 indiquent :443. Conserver la valeur constatée.
+- Les sites ne sont pas synonymes d'OU et ne routent pas les paquets. Tester depuis le client sur le réseau voulu et vérifier la connectivité DNS/DC.
+- Ne pas publier les secrets, exports AD complets, captures internes non anonymisées ou clés de licence.
+
+## Vérifications
+~~~powershell
+Get-ADDomainController -Filter *
+Get-ADReplicationSubnet -Filter *
+netdom query fsmo
+repadmin /replsummary
+~~~
+## Journal de lab
+À compléter dans les comptes rendus : versions, IP réellement utilisées, date, VM, changements et preuves." href="fiches/infra.html"><span class="num">Fiches Fiche</span><strong>Infrastructure du lab</strong><small>Vue d’ensemble · domED.ad</small></a></div><h2>Scripts</h2><div class="grid"><a class="tile" data-search="5 scripts PowerShell prêts à adapter" href="scripts/index.html"><span class="num">Scripts PS</span><strong>Bibliothèque de scripts</strong><small>5 scripts PowerShell prêts à adapter</small></a></div><h2>Préparer les prochains ateliers</h2><div class="grid"><a class="tile" data-search="Trames réutilisables, résultats et preuves" href="modeles/index.html"><span class="num">Modèles </span><strong>Compte rendu &amp; correction</strong><small>Trames réutilisables, résultats et preuves</small></a></div><aside class="note">Les résultats des tests restent à renseigner. Les PDF originaux et secrets ne sont pas inclus. Ce site utilise uniquement des fichiers statiques, sans dépendance externe.</aside><footer>Notes personnelles de formation · Administration Windows et AD · ASR02–02 · Exemples pédagogiques à vérifier sur le lab.</footer></main></div></body></html>

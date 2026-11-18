@@ -1,0 +1,14 @@
+# Résultats bruts et secrets : conserver en local
+**/livrables/*
+!**/livrables/README.md
+*.vmdk
+*.vmem
+*.vmsn
+*.vhdx
+*.iso
+*.evtx
+*.blg
+*.pfx
+*.key
+.env
+.env.*

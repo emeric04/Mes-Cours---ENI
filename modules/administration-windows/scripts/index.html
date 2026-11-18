@@ -1,0 +1,117 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Scripts · ENI ASR</title><link rel="stylesheet" href="../../../assets/style.css"><script defer src="../../../assets/app.js"></script></head><body><header><a class="brand" href="../../../index.html"><span class="mark">ENI / ASR</span><span>Base de connaissances</span></a><button id="theme" type="button">Mode sombre</button></header><div class="layout"><nav aria-label="Navigation"><div class="links"><a href="../../../index.html">Accueil ENI</a><a href="../index.html">Administration Windows</a></div><h2>Cours</h2><div class="links"><a href="../cours/01-contextes.html">01 · Contextes de travail</a><a href="../cours/02-windows-server.html">02 · Gestion de Windows Server</a><a href="../cours/03-active-directory.html">03 · Domaine Active Directory</a><a href="../cours/04-ressources.html">04 · Accès aux ressources</a><a href="../cours/05-gpo.html">05 · Stratégies de groupe (GPO)</a></div><h2>TP</h2><div class="links"><a href="../tp/tp01-infrastructure/index.html">TP 01 · Création de l’infrastructure</a><a href="../tp/tp02-domaine/index.html">TP 02 · Création du domaine AD</a><a href="../tp/tp03-gestion-ad/index.html">TP 03 · Gestion d’un domaine AD</a><a href="../tp/tp04-ressources/index.html">TP 04 · Gestion des ressources</a><a href="../tp/tp05-gpo/index.html">TP 05 · Stratégies de groupe</a></div><h2>Fiches</h2><div class="links"><a href="../fiches/commandes.html">PowerShell &amp; CMD</a><a href="../fiches/raccourcis.html">Raccourcis Windows</a><a href="../fiches/infra.html">Infrastructure du lab</a></div><h2>Scripts</h2><div class="links"><a href="index.html" aria-current="page">Bibliothèque de scripts</a></div><h2>Modèles</h2><div class="links"><a href="../modeles/index.html">Compte rendu &amp; correction</a></div></nav><main><section class="hero"><span class="eyebrow">PowerShell</span><h1>Bibliothèque de scripts</h1><p>Exemples pédagogiques · à tester dans la maquette</p></section><aside class="note">Les scripts de création et d'activation modifient AD après confirmation. Les trois autres sont des outils de contrôle/export. Aucun script n'a été exécuté sur tes VM.</aside><article class="article"><h2 class="wrap">activation-compte.ps1</h2><div class="actions"><a class="action" href="activation-compte.ps1" download>Télécharger .ps1</a></div><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code># Lab ENI - saisie interactive, aucune valeur secrete en dur.
+Import-Module ActiveDirectory -ErrorAction Stop
+do {
+    Write-Host &quot;=== Activation du compte AD ===&quot; -ForegroundColor Cyan
+    $User = Read-Host &quot;Identifiant&quot;
+    try {
+        $Compte = Get-ADUser -Identity $User -ErrorAction Stop
+        Write-Host (&quot;Compte : &quot; + $Compte.Name)
+        if ((Read-Host &quot;Confirmer la reinitialisation et activation (O/N)&quot;) -eq &quot;O&quot;) {
+            $Pass = Read-Host &quot;Nouveau mot de passe&quot; -AsSecureString
+            Set-ADAccountPassword -Identity $Compte -Reset -NewPassword $Pass -ErrorAction Stop
+            Enable-ADAccount -Identity $Compte -ErrorAction Stop
+            Get-ADUser -Identity $Compte.DistinguishedName -ErrorAction Stop |
+                Select-Object Name,SamAccountName,Enabled
+        }
+    }
+    catch {
+        Write-Host $_.Exception.Message -ForegroundColor Red
+    }
+    $Continuer = Read-Host &quot;Autre utilisateur (O/N)&quot;
+} while ($Continuer -eq &quot;O&quot;)
+</code></pre></div><h2 class="wrap">export-groupes.ps1</h2><div class="actions"><a class="action" href="export-groupes.ps1" download>Télécharger .ps1</a></div><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code># Lecture seule AD ; execute depuis le repertoire d'atelier
+Import-Module ActiveDirectory -ErrorAction Stop
+$OU = &quot;OU=Groupes,OU=Société ASR,DC=domED,DC=ad&quot;
+$Dossier = Join-Path (Get-Location) &quot;livrables&quot;
+$Fichier = Join-Path $Dossier &quot;ctrl_membres_groupes.txt&quot;
+try {
+    New-Item -Path $Dossier -ItemType Directory -Force -ErrorAction Stop | Out-Null
+    $Groupes = Get-ADGroup -Filter {GroupScope -eq &quot;Global&quot;} -SearchBase $OU -ErrorAction Stop | Sort-Object Name
+    $Rapport = foreach ($Groupe in $Groupes) {
+        &quot;====================================&quot;
+        &quot;Groupe : $($Groupe.Name)&quot;
+        &quot;====================================&quot;
+        $Membres = @(Get-ADGroupMember -Identity $Groupe -ErrorAction Stop)
+        if ($Membres.Count -eq 0) { &quot;(Aucun membre)&quot; }
+        else { $Membres | Sort-Object Name | Select-Object -ExpandProperty Name }
+        &quot;&quot;
+    }
+    if (-not $Groupes) { throw &quot;Aucun groupe global trouve dans l'OU.&quot; }
+    $Rapport | Out-File -FilePath $Fichier -Encoding UTF8 -ErrorAction Stop
+    Write-Host &quot;Export : $Fichier&quot; -ForegroundColor Green
+}
+catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+</code></pre></div><h2 class="wrap">export-utilisateur.ps1</h2><div class="actions"><a class="action" href="export-utilisateur.ps1" download>Télécharger .ps1</a></div><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code># Lecture seule AD ; execute depuis le repertoire d'atelier
+Import-Module ActiveDirectory -ErrorAction Stop
+$User = Read-Host &quot;Identifiant (laisser vide pour dgrenier)&quot;
+if ([string]::IsNullOrWhiteSpace($User)) { $User = &quot;dgrenier&quot; }
+$Dossier = Join-Path (Get-Location) &quot;livrables&quot;
+$NomFichier = if ($User -eq &quot;dgrenier&quot;) { &quot;detail_user_David.txt&quot; } else { &quot;detail_user_$($User -replace '[^a-zA-Z0-9_.-]','_').txt&quot; }
+$Fichier = Join-Path $Dossier $NomFichier
+try {
+    New-Item -Path $Dossier -ItemType Directory -Force -ErrorAction Stop | Out-Null
+    Get-ADUser -Identity $User -Properties * -ErrorAction Stop |
+        Format-List * | Out-File -FilePath $Fichier -Encoding UTF8 -Width 4096 -ErrorAction Stop
+    Write-Host &quot;Export : $Fichier&quot; -ForegroundColor Green
+}
+catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+</code></pre></div><h2 class="wrap">controle-stockage.ps1</h2><div class="actions"><a class="action" href="controle-stockage.ps1" download>Télécharger .ps1</a></div><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code># Lecture seule - a executer sur SRV1
+Write-Host &quot;=== Pools ===&quot; -ForegroundColor Cyan
+Get-StoragePool -IsPrimordial $false | Format-Table FriendlyName,HealthStatus,OperationalStatus,Size
+Write-Host &quot;=== Disques physiques ===&quot; -ForegroundColor Cyan
+Get-PhysicalDisk | Format-Table FriendlyName,Size,HealthStatus,OperationalStatus
+Write-Host &quot;=== Disques virtuels ===&quot; -ForegroundColor Cyan
+Get-VirtualDisk | Format-List FriendlyName,ResiliencySettingName,HealthStatus,OperationalStatus,NumberOfDataCopies,PhysicalDiskRedundancy
+Write-Host &quot;=== Volumes et points de montage ===&quot; -ForegroundColor Cyan
+Get-Volume | Format-Table DriveLetter,FileSystemLabel,FileSystem,HealthStatus,Size
+Get-Partition | Format-List DiskNumber,DriveLetter,AccessPaths
+</code></pre></div><h2 class="wrap">creation-utilisateur.ps1</h2><div class="actions"><a class="action" href="creation-utilisateur.ps1" download>Télécharger .ps1</a></div><div class="code"><div class="codebar"><span>powershell</span><button class="copy" type="button">Copier</button></div><pre><code># Exemple generique : ne remplace pas la copie des modeles du TP03.
+Import-Module ActiveDirectory -ErrorAction Stop
+$BaseOU = &quot;OU=Utilisateurs,OU=Société ASR,DC=domED,DC=ad&quot;
+do {
+    Write-Host &quot;=== Creation utilisateur AD ===&quot; -ForegroundColor Cyan
+    $Prenom = (Read-Host &quot;Prenom&quot;).Trim()
+    $Nom = (Read-Host &quot;Nom&quot;).Trim()
+    if (-not $Prenom -or -not $Nom) {
+        Write-Host &quot;Prenom et nom obligatoires&quot; -ForegroundColor Red
+    }
+    else {
+        $Login = ($Prenom.Substring(0,1) + $Nom).ToLowerInvariant().Normalize(&quot;FormD&quot;) -replace '\p{Mn}|[^a-zA-Z0-9._-]', ''
+        $Services = @(&quot;Direction&quot;,&quot;Informatique&quot;,&quot;Comptabilité&quot;)
+        do {
+            Write-Host &quot;1 Direction / 2 Informatique / 3 Comptabilite&quot;
+            $Choix = Read-Host &quot;Service&quot;
+        } until ($Choix -in &quot;1&quot;,&quot;2&quot;,&quot;3&quot;)
+        $Service = $Services[[int]$Choix - 1]
+        $Params = @{
+            Name = &quot;$Prenom $Nom&quot;
+            GivenName = $Prenom
+            Surname = $Nom
+            DisplayName = &quot;$Prenom $Nom&quot;
+            SamAccountName = $Login
+            UserPrincipalName = &quot;$Login@domED.ad&quot;
+            Department = $Service
+            Path = &quot;OU=$Service,$BaseOU&quot;
+            Enabled = $false
+        }
+        $Fonction = Read-Host &quot;Fonction (facultatif)&quot;
+        $Telephone = Read-Host &quot;Telephone (facultatif)&quot;
+        if ($Fonction) { $Params.Title = $Fonction }
+        if ($Telephone) { $Params.OfficePhone = $Telephone }
+        if ((Read-Host &quot;Expiration au 31 decembre (O/N)&quot;) -eq &quot;O&quot;) {
+            # Expiration en debut de journee du 1er janvier suivant.
+            $Params.AccountExpirationDate = (Get-Date -Year ((Get-Date).Year + 1) -Month 1 -Day 1).Date
+        }
+        Write-Host &quot;$Login / $Service / compte desactive sans mot de passe&quot;
+        if ((Read-Host &quot;Confirmer (O/N)&quot;) -eq &quot;O&quot;) {
+            try {
+                if (-not $Login -or $Login.Length -gt 20) { throw &quot;Identifiant vide ou trop long (max 20).&quot; }
+                New-ADUser @Params -ErrorAction Stop
+                Write-Host &quot;Compte cree&quot; -ForegroundColor Green
+            }
+            catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+        }
+    }
+    $Continuer = Read-Host &quot;Autre utilisateur (O/N)&quot;
+} while ($Continuer -eq &quot;O&quot;)
+</code></pre></div></article><footer>Notes personnelles de formation · Administration Windows et AD · ASR02–02 · Exemples pédagogiques à vérifier sur le lab.</footer></main></div></body></html>
