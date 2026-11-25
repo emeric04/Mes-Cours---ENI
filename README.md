@@ -5,6 +5,7 @@ Base documentaire personnelle ASR. Un dépôt, un dossier par module.
 - [Accueil du portail](index.html)
 - [Administration Windows et AD](modules/administration-windows/index.html)
 - [Administration Linux (Oracle Linux 8)](modules/administration-linux/index.html)
+- [QCM Administration Linux](modules/administration-linux/qcm/index.html) — 40 questions par session, 184 questions en réserve.
 - [Scripts PowerShell](modules/administration-windows/scripts/README.md)
 
 ## Organisation
@@ -21,6 +22,7 @@ modules/administration-windows/
 modules/administration-linux/
   index.html
   cours/       # 11 chapitres HTML + Markdown
+  qcm/         # QCM interactif (40 questions, banque de 184)
   fiches/      # commandes, dépannage, stockage, labo
   modeles/     # modèles réutilisables
 ```

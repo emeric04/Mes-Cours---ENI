@@ -6,7 +6,7 @@
   const siteRoot=new URL("../",current.src);
   const navLinks=document.querySelector("nav .links");
   if(!navLinks)return;
-  const modules=[["Administration Windows","modules/administration-windows/index.html"],["Administration Linux","modules/administration-linux/index.html"]];
+  const modules=[["Administration Windows","modules/administration-windows/index.html"],["Administration Linux","modules/administration-linux/index.html"],["QCM Linux","modules/administration-linux/qcm/index.html"]];
   for(const [name,path] of modules){
     const destination=new URL(path,siteRoot).href;
     if([...navLinks.querySelectorAll("a[href]")].some(a=>a.href===destination))continue;
