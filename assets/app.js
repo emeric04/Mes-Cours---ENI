@@ -1,1 +1,19 @@
 (()=>{const root=document.documentElement;try{root.dataset.theme=localStorage.getItem("eni-theme")||"light"}catch{}const btn=document.querySelector("#theme");const label=()=>{if(btn)btn.textContent=root.dataset.theme==="dark"?"Mode clair":"Mode sombre"};label();btn?.addEventListener("click",()=>{root.dataset.theme=root.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("eni-theme",root.dataset.theme)}catch{}label()});document.querySelectorAll(".copy").forEach(b=>b.addEventListener("click",async()=>{try{let t=b.closest(".code").querySelector("code").textContent;if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(t);else{let a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();if(!document.execCommand("copy"))throw Error();a.remove()}b.textContent="Copié";setTimeout(()=>b.textContent="Copier",1400)}catch{b.textContent="Sélectionner le code"}}));const box=document.querySelector("#search");if(box){const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");const tiles=[...document.querySelectorAll("[data-search]")];box.addEventListener("input",()=>{let q=norm(box.value.trim());let n=0;tiles.forEach(t=>{t.hidden=!norm(t.textContent+" "+t.dataset.search).includes(q);if(!t.hidden)n++});document.querySelector("#count").textContent=q?n+" résultat(s)":""})}})();
+/* Navigation transversale : garder les deux modules accessibles dans le portail. */
+(()=>{
+  const current=document.currentScript;
+  if(!current?.src)return;
+  const siteRoot=new URL("../",current.src);
+  const navLinks=document.querySelector("nav .links");
+  if(!navLinks)return;
+  const modules=[["Administration Windows","modules/administration-windows/index.html"],["Administration Linux","modules/administration-linux/index.html"]];
+  for(const [name,path] of modules){
+    const destination=new URL(path,siteRoot).href;
+    if([...navLinks.querySelectorAll("a[href]")].some(a=>a.href===destination))continue;
+    const link=document.createElement("a");
+    link.href=destination;
+    link.textContent=name;
+    if(location.href.split(/[?#]/)[0]===destination)link.setAttribute("aria-current","page");
+    navLinks.appendChild(link);
+  }
+})();
