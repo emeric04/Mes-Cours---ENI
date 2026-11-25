@@ -1,0 +1,47 @@
+/* QCM Linux : reprend la charte claire/sombre du portail ENI */
+[hidden]{display:none!important}
+.primary-action{background:var(--brand);color:white;border-color:var(--brand);font-weight:750;padding:12px 21px;min-height:45px}
+.primary-action:hover{filter:brightness(.92)}
+.primary-action:disabled{opacity:.48;cursor:not-allowed}
+.quota-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 16px;margin:18px 0 23px}
+.quota-item{display:flex;gap:12px;justify-content:space-between;border-bottom:1px solid var(--line);font-size:14px;padding:8px 0}
+.quota-item strong{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--brand)}
+.question-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.progress-track{height:9px;background:var(--line);border-radius:999px;overflow:hidden}
+.progress-fill{width:0;height:100%;border-radius:inherit;background:var(--brand);transition:width .2s}
+#question-chapter{margin:18px 0 2px;font-weight:650}
+#question-title{font-size:clamp(20px,2.6vw,27px);line-height:1.35;border:0;padding:0;margin:11px 0 21px}
+.choices{border:0;padding:0;margin:0;display:grid;gap:11px}
+.q-option{border:1px solid var(--line);border-radius:12px;padding:14px 15px;display:flex;gap:13px;align-items:flex-start;cursor:pointer;background:var(--surface);line-height:1.4}
+.q-option:hover:not(.locked){border-color:var(--brand);background:var(--soft)}
+.q-option:focus-within{outline:2px solid var(--brand);outline-offset:2px}
+.q-option input{width:17px;height:17px;margin:3px 0 0;flex-shrink:0;accent-color:var(--brand)}
+.q-option.selected{border-color:var(--brand);background:var(--soft)}
+.q-option.correct{border-color:#339b69;background:rgba(51,155,105,.09)}
+.q-option.incorrect{border-color:#d56363;background:rgba(213,99,99,.10)}
+.q-option.locked{cursor:default}
+.option-letter{font-weight:750;color:var(--brand);width:20px;flex-shrink:0}
+.option-text{flex:1;min-width:0;overflow-wrap:anywhere}
+.feedback{padding:17px;border:1px solid var(--line);border-radius:12px;margin:19px 0;background:var(--bg)}
+.feedback.good{border-color:#339b69}
+.feedback.bad{border-color:#d56363}
+.feedback strong{display:block;margin-bottom:8px}
+.feedback .source{margin-bottom:0}
+.feedback p{margin:7px 0 0}
+.final-heading{display:flex;gap:16px;align-items:center}
+.final-heading>span{font-size:38px}
+.final-heading h2{margin:0}
+.final-heading p{margin:6px 0}
+.result-score{font-weight:800;font-size:42px;line-height:1.2;margin:22px 0 28px;color:var(--brand)}
+.chapter-result{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.chapter-result .chapter-name{flex:1}
+.chapter-result .chapter-fraction{font-weight:700;min-width:40px;text-align:right}
+.mini-track{width:100px;flex:0 0 100px;background:var(--line);height:7px;border-radius:8px;overflow:hidden}
+.mini-track span{height:100%;background:var(--brand);display:block}
+#errors-details{margin:23px 0}
+#errors-details>summary{cursor:pointer;font-weight:700;padding:12px 0}
+.error-entry{border-bottom:1px solid var(--line);padding:14px 0}
+.error-entry p{margin:5px 0}
+.error-entry .correct-response{font-weight:650;color:var(--brand)}
+.sr-only{position:absolute!important;clip:rect(0,0,0,0)!important;width:1px;height:1px;padding:0;border:0;overflow:hidden;white-space:nowrap}
+@media(max-width:700px){.quota-list{grid-template-columns:1fr}.chapter-result{flex-wrap:wrap}.mini-track{flex:0 0 70px;width:70px}.q-option{padding:12px}.result-score{font-size:34px}}

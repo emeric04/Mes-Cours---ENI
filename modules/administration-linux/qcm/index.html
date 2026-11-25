@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>QCM Administration Linux · ENI ASR</title>
+<meta name="description" content="QCM Linux : 40 questions réparties sur les 11 chapitres du cours ENI, avec corrections et bilan.">
+<link rel="stylesheet" href="../../../assets/style.css">
+<link rel="stylesheet" href="quiz.css">
+<script defer src="../../../assets/app.js"></script>
+<script defer src="questions.js"></script>
+<script defer src="quiz.js"></script>
+</head>
+<body>
+<header><a class="brand" href="../../../index.html"><span class="mark">ENI / ASR</span><span>Base de connaissances</span></a><button type="button" id="theme">Mode sombre</button></header>
+<div class="layout">
+<nav aria-label="Navigation">
+<div class="links">
+<a href="../../../index.html">Accueil ENI</a>
+<a href="../index.html">Administration Linux</a>
+<a href="../../administration-windows/index.html">Administration Windows</a>
+<a href="index.html" aria-current="page">QCM Linux</a>
+</div>
+<h2>Chapitres</h2>
+<div class="links">
+<a href="../cours/01-introduction.html">01 · Introduction</a>
+<a href="../cours/02-historique.html">02 · Historique et distributions</a>
+<a href="../cours/03-installation.html">03 · Installation</a>
+<a href="../cours/04-demarrage.html">04 · Démarrage et systemd</a>
+<a href="../cours/05-maintenance-demarrage.html">05 · Maintenance au démarrage</a>
+<a href="../cours/06-reseau.html">06 · Réseau</a>
+<a href="../cours/07-paquets.html">07 · Paquets DNF et RPM</a>
+<a href="../cours/08-stockage.html">08 · Stockage et LVM</a>
+<a href="../cours/09-utilisateurs-groupes.html">09 · Utilisateurs et groupes</a>
+<a href="../cours/10-permissions.html">10 · Permissions</a>
+<a href="../cours/11-maintenance-production.html">11 · Supervision et journaux</a>
+</div>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">Administration Linux</a> / QCM</div>
+<section class="hero">
+<div class="eyebrow">ENI ASR · Entraînement interactif</div>
+<h1>QCM — Administration Linux</h1>
+<p>Révise les 11 chapitres du cours, de l'installation jusqu'à la supervision. Une session équilibrée de 40 questions, avec des variantes à chaque lancement.</p>
+<div class="metrics">
+<div class="metric"><strong>40</strong><span>Questions par session</span></div>
+<div class="metric"><strong>11</strong><span>Chapitres évalués</span></div>
+<div class="metric"><strong id="total-bank">184</strong><span>Questions en réserve</span></div>
+</div>
+</section>
+<section id="quiz-intro" class="article" aria-labelledby="intro-title">
+<h2 id="intro-title">Prêt à réviser ?</h2>
+<p>Chaque question possède <strong>une seule bonne réponse</strong>. Tu obtiens immédiatement la correction et la page du PDF ENI correspondante.</p>
+<p><strong>Tous les chapitres sont interrogés à chaque session.</strong> Les 40 questions ne peuvent pas représenter tous les détails des 85 pages en une seule fois : la banque de questions change entre les sessions pour couvrir progressivement davantage de notions.</p>
+<div class="quota-list" id="quota-list"></div>
+<div class="actions"><button class="primary-action" type="button" id="start-quiz">Commencer le QCM</button><button type="button" id="resume-quiz" hidden>Reprendre ma session</button></div>
+<p class="source">Base : support de cours ENI « Administration d’un système Linux », version 2021-11 (85 pages). Reformulations pédagogiques, non officielles. La progression est conservée localement sur ce navigateur.</p>
+</section>
+<section id="quiz-active" class="article" hidden aria-live="polite">
+<div class="question-top"><span id="question-count" class="num">Question 1 / 40</span><span id="question-score" class="muted">Score : 0</span></div>
+<div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+<p id="question-chapter" class="muted"></p>
+<h2 id="question-title" tabindex="-1">Question</h2>
+<fieldset id="question-options" class="choices"><legend class="sr-only">Choisis une réponse</legend></fieldset>
+<div id="question-feedback" class="feedback" hidden aria-live="polite"></div>
+<div class="actions"><button class="primary-action" id="validate-answer" type="button" disabled>Valider ma réponse</button><button class="primary-action" id="next-question" type="button" hidden>Question suivante</button><button id="restart-during" type="button">Recommencer</button></div>
+<p class="source">Raccourcis : A, B, C ou D pour choisir ; Entrée pour valider ou continuer.</p>
+</section>
+<section id="quiz-done" class="article" hidden>
+<div class="final-heading"><span aria-hidden="true">🏁</span><div><h2 id="final-title">QCM terminé</h2><p id="final-subtitle"></p></div></div>
+<div class="result-score" id="final-score"></div>
+<h2>Résultats par chapitre</h2>
+<div id="chapter-results" class="chapter-results"></div>
+<details id="errors-details"><summary>Revoir mes erreurs (<span id="errors-count">0</span>)</summary><div id="errors-list"></div></details>
+<div class="actions"><button type="button" class="primary-action" id="new-quiz">Nouveau tirage de 40 questions</button><a class="action" href="../index.html">Retour au cours Linux</a></div>
+</section>
+<footer>Révisions personnelles · Administration Linux · ENI ASR · Aucun TP affiché.</footer>
+</main></div>
+</body></html>
