@@ -21,9 +21,7 @@ modules/administration-windows/
 modules/administration-linux/
   index.html
   cours/       # 11 chapitres HTML + Markdown
-  tp/          # 11 ateliers, trames de compte rendu et de vérification
   fiches/      # commandes, dépannage, stockage, labo
-  modeles/     # compte rendu
   modeles/     # modèles réutilisables
 ```
 
@@ -40,4 +38,4 @@ Pour ajouter un module, créer un dossier sous modules/ et lier sa page d'accuei
 
 ## Administration Linux
 
-Synthèses personnelles fondées sur le support ENI *Administration d’un système Linux* (édition 2021-11, 85 pages) et exemples de laboratoire Oracle Linux 8. Les exercices et corrigés non vérifiés sont clairement présentés comme des trames. Les fichiers sources PDF et captures de session ne sont pas publiés.
+Synthèses personnelles fondées sur le support ENI *Administration d’un système Linux* (édition 2021-11, 85 pages) et exemples de laboratoire Oracle Linux 8. Les ressources Linux sont organisées en chapitres de cours et fiches pratiques. Les fichiers sources PDF et captures de session ne sont pas publiés.
