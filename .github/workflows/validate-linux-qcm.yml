@@ -1,0 +1,21 @@
+name: Valider les QCM Linux
+on:
+  push:
+    paths:
+      - "modules/administration-linux/qcm/**"
+      - ".github/workflows/validate-linux-qcm.yml"
+  pull_request:
+    paths:
+      - "modules/administration-linux/qcm/**"
+      - ".github/workflows/validate-linux-qcm.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Vérifier les questions
+        run: node modules/administration-linux/qcm/validate-questions.mjs

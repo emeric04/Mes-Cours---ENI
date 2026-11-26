@@ -4,12 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>QCM Administration Linux · ENI ASR</title>
-<meta name="description" content="QCM Linux : 40 questions réparties sur les 11 chapitres du cours ENI, avec corrections et bilan.">
+<title>QCM par chapitre · Administration Linux · ENI ASR</title>
+<meta name="description" content="QCM Linux modulaires : 20 questions par chapitre ou 40 questions en mode global. Banque de questions rotative avec corrections et sources ENI.">
 <link rel="stylesheet" href="../../../assets/style.css">
 <link rel="stylesheet" href="quiz.css">
 <script defer src="../../../assets/app.js"></script>
 <script defer src="questions.js"></script>
+<script defer src="questions-complement-1.js"></script>
+<script defer src="questions-complement-2.js"></script>
+<script defer src="questions-complement-3.js"></script>
 <script defer src="quiz.js"></script>
 </head>
 <body>
@@ -22,59 +25,98 @@
 <a href="../../administration-windows/index.html">Administration Windows</a>
 <a href="index.html" aria-current="page">QCM Linux</a>
 </div>
-<h2>Chapitres</h2>
+<h2>Accès rapide aux QCM</h2>
 <div class="links">
-<a href="../cours/01-introduction.html">01 · Introduction</a>
-<a href="../cours/02-historique.html">02 · Historique et distributions</a>
-<a href="../cours/03-installation.html">03 · Installation</a>
-<a href="../cours/04-demarrage.html">04 · Démarrage et systemd</a>
-<a href="../cours/05-maintenance-demarrage.html">05 · Maintenance au démarrage</a>
+<a href="?mode=global">Tous les chapitres · 40 questions</a>
+<a href="?chapitre=1">01 · Introduction</a>
+<a href="?chapitre=2">02 · Historique et distributions</a>
+<a href="?chapitre=3">03 · Installation Linux</a>
+<a href="?chapitre=4">04 · Démarrage et systemd</a>
+<a href="?chapitre=5">05 · Maintenance au démarrage</a>
+<a href="?chapitre=6">06 · Réseau et NetworkManager</a>
+<a href="?chapitre=7">07 · Paquets, DNF et RPM</a>
+<a href="?chapitre=8">08 · Stockage et LVM</a>
+<a href="?chapitre=9">09 · Utilisateurs et groupes</a>
+<a href="?chapitre=10">10 · Permissions</a>
+<a href="?chapitre=11">11 · Journaux et supervision</a>
+</div>
+<h2>Revoir le cours</h2>
+<div class="links">
 <a href="../cours/06-reseau.html">06 · Réseau</a>
-<a href="../cours/07-paquets.html">07 · Paquets DNF et RPM</a>
+<a href="../cours/07-paquets.html">07 · Gestion des paquets</a>
 <a href="../cours/08-stockage.html">08 · Stockage et LVM</a>
 <a href="../cours/09-utilisateurs-groupes.html">09 · Utilisateurs et groupes</a>
 <a href="../cours/10-permissions.html">10 · Permissions</a>
-<a href="../cours/11-maintenance-production.html">11 · Supervision et journaux</a>
 </div>
 </nav>
 <main>
-<div class="crumb"><a href="../index.html">Administration Linux</a> / QCM</div>
+<div class="crumb"><a href="../index.html">Administration Linux</a> / QCM modulaires</div>
 <section class="hero">
-<div class="eyebrow">ENI ASR · Entraînement interactif</div>
+<div class="eyebrow">ENI ASR · Révisions ciblées</div>
 <h1>QCM — Administration Linux</h1>
-<p>Révise les 11 chapitres du cours, de l'installation jusqu'à la supervision. Une session équilibrée de 40 questions, avec des variantes à chaque lancement.</p>
+<p>Travaille un seul chapitre, ou révise tout le module. Chaque nouvelle tentative choisit des questions dans une banque élargie, avec rotation et réponses mélangées.</p>
 <div class="metrics">
-<div class="metric"><strong>40</strong><span>Questions par session</span></div>
-<div class="metric"><strong>11</strong><span>Chapitres évalués</span></div>
-<div class="metric"><strong id="total-bank">184</strong><span>Questions en réserve</span></div>
+<div class="metric"><strong>20</strong><span>Questions par chapitre</span></div>
+<div class="metric"><strong>40</strong><span>Questions en mode global</span></div>
+<div class="metric"><strong id="total-bank">—</strong><span>Questions disponibles</span></div>
 </div>
 </section>
 <section id="quiz-intro" class="article" aria-labelledby="intro-title">
-<h2 id="intro-title">Prêt à réviser ?</h2>
-<p>Chaque question possède <strong>une seule bonne réponse</strong>. Tu obtiens immédiatement la correction et la page du PDF ENI correspondante.</p>
-<p><strong>Tous les chapitres sont interrogés à chaque session.</strong> Les 40 questions ne peuvent pas représenter tous les détails des 85 pages en une seule fois : la banque de questions change entre les sessions pour couvrir progressivement davantage de notions.</p>
+<h2 id="intro-title">Choisir mon entraînement</h2>
+<p>Une seule bonne réponse par question, correction immédiate et référence à la page correspondante du support ENI.</p>
+<div class="qcm-modes" aria-label="Choix du chapitre">
+<a class="mode-card mode-global" data-mode="global" href="?mode=global"><span class="mode-icon">GLOBAL</span><strong>Révision générale</strong><span>40 questions équilibrées sur les 11 chapitres</span></a>
+<a class="mode-card" data-mode="ch1" href="?chapitre=1"><span class="mode-icon">CH 01</span><strong>Introduction</strong><span>20 questions par tentative · <b id="bank-ch-1">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch2" href="?chapitre=2"><span class="mode-icon">CH 02</span><strong>Historique et distributions</strong><span>20 questions par tentative · <b id="bank-ch-2">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch3" href="?chapitre=3"><span class="mode-icon">CH 03</span><strong>Installation Linux</strong><span>20 questions par tentative · <b id="bank-ch-3">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch4" href="?chapitre=4"><span class="mode-icon">CH 04</span><strong>Démarrage et systemd</strong><span>20 questions par tentative · <b id="bank-ch-4">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch5" href="?chapitre=5"><span class="mode-icon">CH 05</span><strong>Maintenance au démarrage</strong><span>20 questions par tentative · <b id="bank-ch-5">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch6" href="?chapitre=6"><span class="mode-icon">CH 06</span><strong>Réseau et NetworkManager</strong><span>20 questions par tentative · <b id="bank-ch-6">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch7" href="?chapitre=7"><span class="mode-icon">CH 07</span><strong>Paquets, DNF et RPM</strong><span>20 questions par tentative · <b id="bank-ch-7">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch8" href="?chapitre=8"><span class="mode-icon">CH 08</span><strong>Stockage et LVM</strong><span>20 questions par tentative · <b id="bank-ch-8">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch9" href="?chapitre=9"><span class="mode-icon">CH 09</span><strong>Utilisateurs et groupes</strong><span>20 questions par tentative · <b id="bank-ch-9">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch10" href="?chapitre=10"><span class="mode-icon">CH 10</span><strong>Permissions</strong><span>20 questions par tentative · <b id="bank-ch-10">—</b> dans la banque</span></a>
+<a class="mode-card" data-mode="ch11" href="?chapitre=11"><span class="mode-icon">CH 11</span><strong>Journaux et supervision</strong><span>20 questions par tentative · <b id="bank-ch-11">—</b> dans la banque</span></a>
+</div>
+<div class="selected-mode" aria-live="polite">
+<p class="eyebrow">Entraînement sélectionné</p>
+<h2 id="selected-title">Révision générale</h2>
+<p id="selected-description"></p>
 <div class="quota-list" id="quota-list"></div>
-<div class="actions"><button class="primary-action" type="button" id="start-quiz">Commencer le QCM</button><button type="button" id="resume-quiz" hidden>Reprendre ma session</button></div>
-<p class="source">Base : support de cours ENI « Administration d’un système Linux », version 2021-11 (85 pages). Reformulations pédagogiques, non officielles. La progression est conservée localement sur ce navigateur.</p>
+<div class="actions">
+<button class="primary-action" type="button" id="start-quiz">Commencer le QCM</button>
+<button type="button" id="resume-quiz" hidden>Reprendre ma session</button>
+</div>
+<p class="source">Les réponses et la progression sont enregistrées localement dans ce navigateur pour chaque chapitre. Un nouveau tirage remplace uniquement la session du mode choisi.</p>
+</div>
 </section>
 <section id="quiz-active" class="article" hidden aria-live="polite">
-<div class="question-top"><span id="question-count" class="num">Question 1 / 40</span><span id="question-score" class="muted">Score : 0</span></div>
-<div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+<div class="question-top"><span id="question-count" class="num">Question 1 / 20</span><span id="question-score" class="muted">Score : 0</span></div>
+<div class="progress-track" role="progressbar" aria-label="Progression du QCM" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
 <p id="question-chapter" class="muted"></p>
 <h2 id="question-title" tabindex="-1">Question</h2>
 <fieldset id="question-options" class="choices"><legend class="sr-only">Choisis une réponse</legend></fieldset>
 <div id="question-feedback" class="feedback" hidden aria-live="polite"></div>
-<div class="actions"><button class="primary-action" id="validate-answer" type="button" disabled>Valider ma réponse</button><button class="primary-action" id="next-question" type="button" hidden>Question suivante</button><button id="restart-during" type="button">Recommencer</button></div>
-<p class="source">Raccourcis : A, B, C ou D pour choisir ; Entrée pour valider ou continuer.</p>
+<div class="actions">
+<button class="primary-action" id="validate-answer" type="button" disabled>Valider ma réponse</button>
+<button class="primary-action" id="next-question" type="button" hidden>Question suivante</button>
+<button id="restart-during" type="button">Nouveau tirage</button>
+<button id="back-to-menu" type="button">Changer de chapitre</button>
+</div>
+<p class="source">Raccourcis : A, B, C ou D pour répondre · Entrée pour valider ou continuer.</p>
 </section>
 <section id="quiz-done" class="article" hidden>
-<div class="final-heading"><span aria-hidden="true">🏁</span><div><h2 id="final-title">QCM terminé</h2><p id="final-subtitle"></p></div></div>
+<div class="final-heading"><span aria-hidden="true">🏁</span><div><h2>Session terminée</h2><p id="final-subtitle"></p></div></div>
 <div class="result-score" id="final-score"></div>
 <h2>Résultats par chapitre</h2>
 <div id="chapter-results" class="chapter-results"></div>
 <details id="errors-details"><summary>Revoir mes erreurs (<span id="errors-count">0</span>)</summary><div id="errors-list"></div></details>
-<div class="actions"><button type="button" class="primary-action" id="new-quiz">Nouveau tirage de 40 questions</button><a class="action" href="../index.html">Retour au cours Linux</a></div>
+<div class="actions">
+<button type="button" class="primary-action" id="new-quiz">Nouveau tirage</button>
+<button type="button" id="choose-again">Changer de chapitre</button>
+<a class="action" id="course-link" href="../index.html">Revoir le cours</a>
+</div>
 </section>
-<footer>Révisions personnelles · Administration Linux · ENI ASR · Aucun TP affiché.</footer>
+<footer>Révisions personnelles · Source : support ENI « Administration d’un système Linux » (2021-11, 85 p.). Adaptation pédagogique non officielle.</footer>
 </main></div>
 </body></html>
